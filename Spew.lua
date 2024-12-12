@@ -89,7 +89,9 @@ function Spew(input, a1, ...)
 				Print("|cffffea00<"..a1:GetObjectType()..":"..(a1:GetName() or input.."(anon)").."|r")
 				local sorttable = {}
 				for i in pairs(a1) do table.insert(sorttable, i) end
-				for i in pairs(getmetatable(a1).__index) do table.insert(sorttable, i) end
+				if type(getmetatable(a1).__index) == "table" then
+					for i in pairs(getmetatable(a1).__index) do table.insert(sorttable, i) end
+				end
 				table.sort(sorttable, downcasesort)
 				for _,i in ipairs(sorttable) do
 					local v, output = a1[i]
