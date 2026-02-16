@@ -71,7 +71,6 @@ local function ArgsToString(a1, ...)
 	else return pretty_tostring(a1), ArgsToString(...) end
 end
 
-
 local blist, input = {GetDisabledFontObject = true, GetHighlightFontObject = true, GetNormalFontObject = true}
 local function downcasesort(a,b)
 	local ta, tb = type(a), type(b)
@@ -80,42 +79,64 @@ local function downcasesort(a,b)
 	if ta == "number" and tb == "number" then return a < b end
 	return a and b and tostring(a):lower() < tostring(b):lower()
 end
-local function pcallhelper(success, ...) if success then return string.join(", ", ArgsToString(...)) end end
+local function pcallhelper(success, ...)
+	if success then
+		return string.join(", ", ArgsToString(...))
+	end
+end
 function Spew(input, a1, ...)
 	if select('#', ...) == 0 then
 		if type(a1) == "table" then
 			if type(rawget(a1, 0)) == "userdata" and type(a1.GetObjectType) == "function" then
 				-- We've got a frame!
-				Print("|cffffea00<"..a1:GetObjectType()..":"..(a1:GetName() or input.."(anon)").."|r")
+				-- TODO: handle concatenation of table error ?
+				Print("|cffffea00<" .. a1:GetObjectType() .. ":" .. (a1:GetName() or input .. "(anon)") .. "|r")
 				local sorttable = {}
-				for i in pairs(a1) do table.insert(sorttable, i) end
+				for i in pairs(a1) do
+					table.insert(sorttable, i)
+				end
 				if type(getmetatable(a1).__index) == "table" then
-					for i in pairs(getmetatable(a1).__index) do table.insert(sorttable, i) end
+					for i in pairs(getmetatable(a1).__index) do
+						table.insert(sorttable, i)
+					end
 				end
 				table.sort(sorttable, downcasesort)
 				for _,i in ipairs(sorttable) do
 					local v, output = a1[i]
-					if type(v) == "function" and type(i) == "string" and not blist[i] and (i:find("^Is") or i:find("^Can") or i:find("^Get")) then
+					if type(v) == "function"
+					and type(i) == "string"
+					and not blist[i]
+					and (i:find("^Is")
+					or i:find("^Can")
+					or i:find("^Get"))
+					then
 						output = pcallhelper(pcall(v, a1))
 					end
-					if output then Print("    |cff7fd5ff"..tostring(i).."|r => "..output)
-					else Print("    |cff7fd5ff"..tostring(i).."|r = "..pretty_tostring(v)) end
+					if output then
+						Print("    |cff7fd5ff".. tostring(i) .. "|r => " .. output)
+					else
+						Print("    |cff7fd5ff".. tostring(i) .. "|r = " .. pretty_tostring(v))
+					end
 				end
 				Print("|cffffea00>|r")
 				ShowUIPanel(panel)
 			else
 				-- Normal table
-				Print("|cff9f9f9f{  -- "..input.."|r")
+				Print("|cff9f9f9f{  -- " .. input .. "|r")
 				local sorttable = {}
-				for i in pairs(a1) do table.insert(sorttable, i) end
+				for i in pairs(a1) do
+					table.insert(sorttable, i)
+				end
 				table.sort(sorttable, downcasesort)
-				for _,i in ipairs(sorttable) do Print("    |cff7fd5ff"..tostring(i).."|r = "..pretty_tostring(a1[i], 1)) end
-				Print("|cff9f9f9f}  -- "..input.."|r")
+				for _,i in ipairs(sorttable) do
+					Print("    |cff7fd5ff" .. tostring(i) .. "|r = " .. pretty_tostring(a1[i], 1))
+				end
+				Print("|cff9f9f9f}  -- " .. input .. "|r")
 				ShowUIPanel(panel)
 			end
-		else Print("|cff999999"..input.."|r => "..pretty_tostring(a1), DEFAULT_CHAT_FRAME) end
+		else Print("|cff999999" .. input .. "|r => " .. pretty_tostring(a1), DEFAULT_CHAT_FRAME) end
 	else
-		Print("|cff999999"..input.."|r => "..string.join(", ", ArgsToString(a1, ...)), DEFAULT_CHAT_FRAME)
+		Print("|cff999999" .. input .. "|r => " .. string.join(", ", ArgsToString(a1, ...)), DEFAULT_CHAT_FRAME)
 	end
 end
 
